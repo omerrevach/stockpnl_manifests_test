@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+spec:
+  replicas: {{ .Values.auth.replicas }}
+  selector: 
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: "{{ .Values.auth.image }}:{{ .Values.auth.tag }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.auth.service.targetPort }}
+          
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+              
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-db-secret
+                  key: mysql-root-password
+            - name:  MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: my-db-secret
+                  key: mysql-database
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-db-secret
+                  key: mysql-password
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: my-db-secret
+                  key: mysql-user
+
+      topologySpreadConstraints:
+        - maxSkew: 1 # ensures difference in number of pods between AZ zones
+          topologyKey: topology.kubernetes.io/zone # tells k8s to distribute the pods across different AZs
+          whenUnsatisfiable: DoNotSchedule # prevents overloading on one zone i the expense of others
+          labelSelector:
+            matchLabels:
+              app: auth

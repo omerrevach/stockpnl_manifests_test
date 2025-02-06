@@ -1,0 +1,7 @@
+trade:
+  image: "rebachi/stockpnl"
+  tag: "trade"
+  replicas: 2
+  service:
+    port: 80
+    targetPort: 5002

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: frontend
+spec:
+  replicas: {{ .Values.frontend.replicas }}
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend-container
+          image: "{{ .Values.frontend.image }}:{{ .Values.frontend.tag }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.frontend.service.targetPort }}
+
+          resources:
+            limits:
+              memory: "256Mi" # max memory allowed
+              cpu: "200m" # max cpu allowed
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+
+      topologySpreadConstraints:
+        - maxSkew: 1 # ensures difference in number of pods between AZ zones
+          topologyKey: topology.kubernetes.io/zone # tells k8s to distribute the pods across different AZs
+          whenUnsatisfiable: DoNotSchedule # prevents overloading on one zone i the expense of others
+          labelSelector:
+            matchLabels:
+              app: frontend
