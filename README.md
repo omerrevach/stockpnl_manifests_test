@@ -1,8 +1,56 @@
-## Make sure to setup terraform first
+# 📌 Kubernetes Manifests for Microservices Deployment
 
+### This repository contains Kubernetes manifests and Helm charts to deploy a microservices-based application, including authentication, trading, and frontend services. It also includes MySQL as the database and uses External Secrets Operator to manage secrets securely.
 
-## Setup
-1. **Store Database Credentials in AWS Secrets Manager:**
+### 🏗️ Project Structure
+
+```
+.
+├── auth-service
+│   └── helm
+│       ├── Chart.yaml
+│       ├── templates
+│       │   ├── deployment.yaml
+│       │   ├── hpa.yaml
+│       │   └── service.yaml
+│       └── values.yaml
+├── cluster-secret-store.yaml
+├── deploy_all_services.sh
+├── frontend
+│   └── helm
+│       ├── Chart.yaml
+│       ├── templates
+│       │   ├── deployment.yaml
+│       │   ├── hpa.yaml
+│       │   ├── ingress.yaml
+│       │   └── service.yaml
+│       └── values.yaml
+├── mysql
+│   └── helm
+│       ├── Chart.yaml
+│       ├── files
+│       │   └── init.sql
+│       ├── templates
+│       │   ├── db-external-secret.yaml
+│       │   ├── init-configmap.yaml
+│       │   ├── service.yaml
+│       │   ├── statefulset.yaml
+│       │   └── storage-class.yaml
+│       └── values.yaml
+├── README.md
+└── trade_service
+    └── helm
+        ├── Chart.yaml
+        ├── templates
+        │   ├── deployment.yaml
+        │   ├── hpa.yaml
+        │   └── service.yaml
+        └── values.yaml
+```
+
+## 🚀 Deployment Steps
+**1️⃣Store Database Credentials in AWS Secrets Manager:**
+
     ```
     aws secretsmanager create-secret --name db-secret --secret-string '{
     "DB_USER": "trading_user",
@@ -12,52 +60,10 @@
     }' --region us-east-1
     ```
 
-2. **Create ClusterSecretStore to Allow Kubernetes to Read AWS Secrets:**
-    ```
-    📂 stockpnl_manifests/external-secrets/cluster-secret-store.yaml
+**2️⃣Setup External Secrets Operator**
+```
+kubectl apply -f cluster-secret-store.yaml
+```
 
-    apiVersion: external-secrets.io/v1beta1
-    kind: ClusterSecretStore
-    metadata:
-      name: global-secret-store
-    spec:
-      provider:
-        aws:
-          service: SecretsManager
-          region: eu-north-1
-          auth:
-            jwt:
-              serviceAccountRef:
-                name: external-secrets-sa
-                namespace: external-secrets
-    ```
-
-    ```
-    kubectl apply -f stockpnl_manifests/external-secrets/cluster-secret-store.yaml
-    ```
-
-3. **Sync AWS Secrets into Kubernetes:**
-    ```
-    📂 stockpnl_manifests/external-secrets/db-external-secret.yaml
-
-    apiVersion: external-secrets.io/v1beta1
-    kind: ExternalSecret
-    metadata:
-      name: db-secret
-      namespace: default
-    spec:
-      refreshInterval: 1m
-      secretStoreRef:
-        name: global-secret-store
-        kind: ClusterSecretStore
-      target:
-        name: db-secret
-        creationPolicy: Owner
-      dataFrom:
-      - extract:
-        key: db-secret
-    ```
-
-    ```
-    kubectl apply -f stockpnl_manifests/external-secrets/db-external-secret.yaml
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml
     ```
