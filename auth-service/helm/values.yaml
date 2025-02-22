@@ -1,7 +1,7 @@
 auth:
   image: "rebachi/stockpnl"
   tag: "auth"
-  replicas: 2
+  replicas: 1
   service:
     port: 80
     targetPort: 5001
