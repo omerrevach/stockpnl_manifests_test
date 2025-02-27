@@ -1,20 +1,18 @@
-name: CD pipeline of auth service
+name: CD Pipeline for Frontend Service
 
 on:
   repository_dispatch:
     types: [frontend_service_pipeline_complete]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-    # container:
-    #   image: rebachi/stockpnl:cdagent
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository (Always use main)
         uses: actions/checkout@v4
         with:
-          ref: "frontend" # deploys the exact commit from ci and ensures correct version of code is checked out
+          ref: "main"  # ✅ Always pull the latest main branch
 
       # - name: Create ArgoCD app 
       #   run: |
@@ -30,12 +28,16 @@ jobs:
       #       --sync-option Prune=true \
       #       --sync-option CreateNamespace=true
 
-      - name: GitOps update docker image tag
+
+      - name: GitOps update Docker image tag
         uses: adwert-it/gitops-image-update@v1
         with:
-            REPOSITORY_NAME: omerrevach/stockpnl_manifests
-            ACCESS_TOKEN: ${{ secrets.PAT }}
-            BRANCH: "main"
-            VALUES_FILE_PATH: "frontend/helm/values.yaml"
-            VALUE_NAME: "frontend.tag"
-            TAG: "${{ github.event.client_payload.tag }}"
+          REPOSITORY_NAME: omerrevach/stockpnl_manifests_test
+          ACCESS_TOKEN: ${{ secrets.PAT }}
+          BRANCH: "main"
+          VALUES_FILE_PATH: "frontend/helm/values.yaml"
+          VALUE_NAME: "frontend.tag"
+          TAG: "${{ github.event.client_payload.build_number }}"  # ✅ Use the build number from CI pipeline
+
+      - name: Notify on Success
+        run: echo "CD pipeline completed successfully! 🚀"
