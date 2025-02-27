@@ -25,8 +25,8 @@ jobs:
           git config --global user.name "GitHub Actions"
           git add frontend/helm/values.yaml
           git commit -m "Updating frontend.tag to build number ${{ github.event.client_payload.build_number }}" || echo "No changes to commit"
-          git pull origin main --rebase
-          git push origin main 
+          git pull https://x-access-token:${{ secrets.PAT }}@github.com/omerrevach/stockpnl_manifests_test.git main --rebase
+          git push https://x-access-token:${{ secrets.PAT }}@github.com/omerrevach/stockpnl_manifests_test.git main
 
       - name: Notify on Success
         run: echo "CD pipeline completed successfully"
