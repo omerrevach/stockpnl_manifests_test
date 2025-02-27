@@ -14,7 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.client_payload.tag }} # deploys the exact commit from ci and ensures correct version of code is checked out
+          ref: "frontend" # deploys the exact commit from ci and ensures correct version of code is checked out
 
       # - name: Create ArgoCD app 
       #   run: |
