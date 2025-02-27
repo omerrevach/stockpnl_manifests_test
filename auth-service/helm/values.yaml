@@ -1,6 +1,6 @@
 auth:
   image: "rebachi/stockpnl"
-  tag: "auth"
+  tag: "auth-10"
   replicas: 1
   service:
     port: 80
