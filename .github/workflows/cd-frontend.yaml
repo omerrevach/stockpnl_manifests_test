@@ -9,35 +9,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository (Always use main)
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: "main"  # ✅ Always pull the latest main branch
+          ref: "main" 
 
-      # - name: Create ArgoCD app 
-      #   run: |
-      #     argocd app create frontend-service \
-      #       --repo https://github.com/omerrevach/stockpnl_manifests.git \
-      #       --path frontend/helm \
-      #       --revision main \
-      #       --dest-server  https://kubernetes.default.svc \
-      #       --dest-namespace frontend \
-      #       --directory-recurse \
-      #       --sync-policy automated \
-      #       --self-heal \
-      #       --sync-option Prune=true \
-      #       --sync-option CreateNamespace=true
+      - name: Update Image Tag in values.yaml
+        run: |
+          sed -i 's/tag:.*/tag: "frontend-${{ github.event.client_payload.build_number }}"/' frontend/helm/values.yaml
+          cat frontend/helm/values.yaml
 
-
-      - name: GitOps update Docker image tag
-        uses: adwert-it/gitops-image-update@v1
-        with:
-          REPOSITORY_NAME: omerrevach/stockpnl_manifests_test
-          ACCESS_TOKEN: ${{ secrets.PAT }}
-          BRANCH: "main"
-          VALUES_FILE_PATH: "frontend/helm/values.yaml"
-          VALUE_NAME: "frontend.tag"
-          TAG: "${{ github.event.client_payload.build_number }}"  # ✅ Use the build number from CI pipeline
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add frontend/helm/values.yaml
+          git commit -m "Updating frontend.tag to build number ${{ github.event.client_payload.build_number }}" || echo "No changes to commit"
+          git push origin main 
 
       - name: Notify on Success
-        run: echo "CD pipeline completed successfully! 🚀"
+        run: echo "CD pipeline completed successfully"
