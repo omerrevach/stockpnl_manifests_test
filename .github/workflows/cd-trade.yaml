@@ -1,0 +1,41 @@
+name: CD pipeline of auth service
+
+on:
+  repository_dispatch:
+    types: [trade_service_pipeline_complete]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: rebachi/stockpnl:cdagent
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.client_payload.tag }} # deploys the exact commit from ci and ensures correct version of code is checked out
+
+      # - name: Create ArgoCD app 
+      #   run: |
+      #     argocd app create trade-service \
+      #       --repo https://github.com/omerrevach/stockpnl_manifests.git \
+      #       --path trade_service/helm \
+      #       --revision main \
+      #       --dest-server  https://kubernetes.default.svc \
+      #       --dest-namespace trade \
+      #       --directory-recurse \
+      #       --sync-policy automated \
+      #       --self-heal \
+      #       --sync-option Prune=true \
+      #       --sync-option CreateNamespace=true
+
+      - name: GitOps update docker image tag
+        uses: adwert-it/gitops-image-update@v1
+        with:
+            REPOSITORY_NAME: omerrevach/stockpnl_manifests
+            ACCESS_TOKEN: ${{ secrets.PAT }}
+            BRANCH: "main"
+            VALUES_FILE_PATH: "trade_service/helm/values.yaml"
+            VALUE_NAME: "trade.tag"
+            TAG: "${{ github.event.client_payload.tag }}"
