@@ -1,16 +1,12 @@
-name: CD pipeline of auth service
-
+name: CD Pipeline for Auth Service
 on:
   repository_dispatch:
     types: [auth_service_pipeline_complete]
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # (least privilege)
     permissions:
       contents: write
-      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,19 +15,20 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
           
-      - name: Update Image Tag in values.yaml
-        run: |
-          sed -i 's/tag:.*/tag: "frontend-${{ github.event.client_payload.build_number }}"/' auth-service/helm/values.yaml
-          cat auth-service/helm/values.yaml  # Verify the update
-          
       - name: Setup Git Identity
         run: |
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           
+      - name: Update Image Tag in values.yaml
+        run: |
+          git pull --rebase origin main
+          sed -i 's/tag:.*/tag: "auth-${{ github.event.client_payload.build_number }}"/' auth-service/helm/values.yaml
+          cat auth-service/helm/values.yaml  # Verify the update
+          
       - name: Commit and Push Changes
         run: |
-          git add frontend/helm/values.yaml
-          git commit -m "Updating frontend.tag to build number ${{ github.event.client_payload.build_number }}" || echo "No changes to commit"
+          git add auth-service/helm/values.yaml
+          git commit -m "Updating auth-service tag to build number ${{ github.event.client_payload.build_number }}" || echo "No changes to commit"
           git pull --rebase origin main
           git push
