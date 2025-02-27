@@ -20,13 +20,13 @@ jobs:
           cat frontend/helm/values.yaml  # Debugging step to verify update
 
       - name: Commit and Push Changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
         run: |
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "GitHub Actions"
           git add frontend/helm/values.yaml
           git commit -m "Updating frontend.tag to build number ${{ github.event.client_payload.build_number }}" || echo "No changes to commit"
-          git pull https://x-access-token:${{ secrets.PAT }}@github.com/omerrevach/stockpnl_manifests_test.git main --rebase
-          git push https://x-access-token:${{ secrets.PAT }}@github.com/omerrevach/stockpnl_manifests_test.git main
+          git push origin main
+
 
       - name: Notify on Success
         run: echo "CD pipeline completed successfully"
