@@ -2,44 +2,33 @@ name: CD Pipeline for Frontend Service
 on:
   repository_dispatch:
     types: [frontend_service_pipeline_complete]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # (least privilege)
     permissions:
-      contents: write 
+      contents: write
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: "main"
-          fetch-depth: 0 
-          token: ${{ secrets.PAT }}
-      
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Update Image Tag in values.yaml
         run: |
           sed -i 's/tag:.*/tag: "frontend-${{ github.event.client_payload.build_number }}"/' frontend/helm/values.yaml
           cat frontend/helm/values.yaml  # Verify the update
-      
+          
       - name: Setup Git Identity
         run: |
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "GitHub Actions"
-      
-      - name: Commit Changes
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          
+      - name: Commit and Push Changes
         run: |
           git add frontend/helm/values.yaml
           git commit -m "Updating frontend.tag to build number ${{ github.event.client_payload.build_number }}" || echo "No changes to commit"
-      
-      - name: Push using authenticated HTTPS
-        run: |
-          git remote set-url origin https://${{ secrets.PAT }}@github.com/omerrevach/stockpnl_manifests_test.git
-          git push origin main
-      
-      - name: Notify on Completion
-        if: always()
-        run: |
-          if [ $? -eq 0 ]; then
-            echo "CD pipeline completed successfully"
-          else
-            echo "CD pipeline encountered issues"
-          fi
+          git push
