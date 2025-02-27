@@ -23,7 +23,7 @@ jobs:
       - name: Update Image Tag in values.yaml
         run: |
           git pull --rebase origin main
-          sed -i 's/tag:.*/tag: "trade-${{ github.event.client_payload.build_number }}"/' trade-service/helm/values.yaml
+          sed -i 's/tag:.*/tag: "trade_${{ github.event.client_payload.build_number }}"/' trade-service/helm/values.yaml
           cat trade-service/helm/values.yaml  # Verify the update
           
       - name: Commit and Push Changes
