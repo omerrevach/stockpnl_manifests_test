@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: "main"  # ✅ Always pull the latest main branch
+          ref: "main" 
 
       - name: Update Image Tag in values.yaml
         run: |
