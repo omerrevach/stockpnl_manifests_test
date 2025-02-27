@@ -1,6 +1,6 @@
 trade:
   image: "rebachi/stockpnl"
-  tag: "trade"
+  tag: "trade-12"
   replicas: 1
   service:
     port: 80
