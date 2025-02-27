@@ -1,6 +1,6 @@
 frontend:
   image: "rebachi/stockpnl"
-  tag: "frontend-30"
+  tag: "frontend-31"
   replicas: 1
   service:
     port: 80
