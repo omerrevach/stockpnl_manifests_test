@@ -1,8 +1,8 @@
-# 📌 Kubernetes Manifests for Microservices Deployment
+# Kubernetes Manifests for Microservices Deployment
 
 ### This repository contains Kubernetes manifests and Helm charts to deploy a microservices-based application, including authentication, trading, and frontend services. It also includes MySQL as the database and uses External Secrets Operator to manage secrets securely.
 
-### 🏗️ Project Structure
+###  Project Structure
 
 ```
 .
@@ -48,8 +48,8 @@
         └── values.yaml
 ```
 
-## 🚀 Deployment Steps
-**1️⃣Store Database Credentials in AWS Secrets Manager:**
+## Deployment Steps
+**1️Store Database Credentials in AWS Secrets Manager:**
 
     ```
     aws secretsmanager create-secret --name db-secret --secret-string '{
@@ -60,7 +60,7 @@
     }' --region us-east-1
     ```
 
-**2️⃣Setup External Secrets Operator**
+**2️Setup External Secrets Operator**
 ```
 kubectl apply -f cluster-secret-store.yaml
 ```
