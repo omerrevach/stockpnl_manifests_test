@@ -26,7 +26,7 @@ spec:
             requests:
               memory: "128Mi"
               cpu: "100m"
-              
+
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
@@ -49,10 +49,28 @@ spec:
                   name: my-db-secret
                   key: mysql-user
 
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.auth.service.targetPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.auth.service.targetPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 5
+
       topologySpreadConstraints:
-        - maxSkew: 1 # ensures difference in number of pods between AZ zones
-          topologyKey: topology.kubernetes.io/zone # tells k8s to distribute the pods across different AZs
-          whenUnsatisfiable: ScheduleAnyway # prevents overloading on one zone i the expense of others
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
           labelSelector:
             matchLabels:
               app: auth

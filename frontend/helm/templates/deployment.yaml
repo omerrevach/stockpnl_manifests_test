@@ -21,16 +21,34 @@ spec:
 
           resources:
             limits:
-              memory: "256Mi" # max memory allowed
-              cpu: "200m" # max cpu allowed
+              memory: "256Mi"
+              cpu: "200m"
             requests:
               memory: "128Mi"
               cpu: "100m"
 
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.frontend.service.targetPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.frontend.service.targetPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 5
+
       topologySpreadConstraints:
-        - maxSkew: 1 # ensures difference in number of pods between AZ zones
-          topologyKey: topology.kubernetes.io/zone # tells k8s to distribute the pods across different AZs
-          whenUnsatisfiable: ScheduleAnyway # prevents overloading on one zone i the expense of others
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
           labelSelector:
             matchLabels:
               app: frontend
