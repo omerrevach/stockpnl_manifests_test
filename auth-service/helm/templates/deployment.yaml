@@ -48,25 +48,7 @@ spec:
                 secretKeyRef:
                   name: my-db-secret
                   key: mysql-user
-
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: {{ .Values.auth.service.targetPort }}
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 2
-            failureThreshold: 3
-
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: {{ .Values.auth.service.targetPort }}
-            initialDelaySeconds: 10
-            periodSeconds: 20
-            timeoutSeconds: 2
-            failureThreshold: 5
-
+                  
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: topology.kubernetes.io/zone
