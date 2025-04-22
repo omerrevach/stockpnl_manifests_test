@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/group.name: argocd-group
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/success-codes: 200-399
+    alb.ingress.kubernetes.io/target-type: ip
+    external-dns.alpha.kubernetes.io/hostname: argocd.stockpnl.com
+    meta.helm.sh/release-name: argo-cd
+    meta.helm.sh/release-namespace: argocd
+  creationTimestamp: "2025-04-20T07:54:19Z"
+  finalizers:
+  - group.ingress.k8s.aws/argocd-group
+  generation: 2
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: argo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+    helm.sh/chart: argo-cd-5.29.1
+  name: argo-cd-argocd-server
+  namespace: argocd
+  resourceVersion: "126489"
+  uid: 85cbf4e0-528f-46d5-a54e-aa4d50fd2032
+spec:
+  ingressClassName: alb
+  rules:
+  - host: argocd.stockpnl.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: argo-cd-argocd-server
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer:
+    ingress:
+    - hostname: k8s-argocdgroup-e03cd57e09-345888943.eu-north-1.elb.amazonaws.com

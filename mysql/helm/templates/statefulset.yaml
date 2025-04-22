@@ -16,15 +16,6 @@ spec:
         app: mysql
     spec:
       terminationGracePeriodSeconds: 30
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: topology.kubernetes.io/zone
-                    operator: In
-                    values:
-                      - eu-north-1a
       initContainers:
         - name: clean-data-dir
           image: busybox

@@ -49,7 +49,7 @@ spec:
       topologySpreadConstraints:
         - maxSkew: 1 # ensures difference in number of pods between AZ zones
           topologyKey: topology.kubernetes.io/zone # tells k8s to distribute the pods across different AZs
-          whenUnsatisfiable: DoNotSchedule # prevents overloading on one zone i the expense of others
+          whenUnsatisfiable: ScheduleAnyway # prevents overloading on one zone i the expense of others
           labelSelector:
             matchLabels:
               app: trade
